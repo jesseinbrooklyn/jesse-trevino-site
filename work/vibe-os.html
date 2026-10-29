@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VIBE.OS · Jesse Trevino</title>
+<meta name="description" content="A personal project: a phone game that teaches vibe coding with real AI characters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Side project · Exploring</p>
+  <h1>VIBE.OS</h1>
+  <p class="lede">A phone game that teaches "vibe coding," building software by describing what you want to an AI, with real AI characters who write the code, react to your choices and grade the result.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Concept, design and build</dd></div>
+    <div><dt>Status</dt><dd>Full game loop working on iPhone</dd></div>
+    <div><dt>Why</dt><dd>To learn by building something real</dd></div>
+  </dl>
+
+
+  <section class="gallery" aria-label="VIBE.OS app store slides">
+    <div class="gallery-head">
+      <p class="viz-title">The pitch, in five App Store slides</p>
+      <div class="gallery-btns">
+        <button type="button" class="gbtn" data-dir="-1" aria-label="Previous slide">←</button>
+        <button type="button" class="gbtn" data-dir="1" aria-label="Next slide">→</button>
+      </div>
+    </div>
+    <div class="slides" id="slides" tabindex="0">
+      <figure class="slide"><img src="../img/vibe/slide1.jpg" alt="Slide 1: Learn to vibe code, no syntax required, over a retro boot screen" width="480" height="1040" loading="lazy"><figcaption><b>1 · The hook</b> What is this?</figcaption></figure>
+      <figure class="slide"><img src="../img/vibe/slide2.jpg" alt="Slide 2: Meet your new coworkers, Pixel the floppy disk and NEXUS the AI orb" width="480" height="1040" loading="lazy"><figcaption><b>2 · The cast</b> Who's involved?</figcaption></figure>
+      <figure class="slide"><img src="../img/vibe/slide3.jpg" alt="Slide 3: Prompt, preview, ship, showing a live preview above the chat with the client" width="480" height="1040" loading="lazy"><figcaption><b>3 · The loop</b> What do I do?</figcaption></figure>
+      <figure class="slide"><img src="../img/vibe/slide4.jpg" alt="Slide 4: Ship it, flex it, with an A+ final grade stamp" width="480" height="1040" loading="lazy"><figcaption><b>4 · Ship it</b> What's the payoff?</figcaption></figure>
+      <figure class="slide"><img src="../img/vibe/slide5.jpg" alt="Slide 5: Your fake new résumé, a parody résumé card ready to share" width="480" height="1040" loading="lazy"><figcaption><b>5 · The flex</b> Why share it?</figcaption></figure>
+    </div>
+    <p class="gallery-note">Each slide answers one question, in the order a person swipes through a store listing.</p>
+  </section>
+
+  <h2>The idea</h2>
+  <p>I taught myself to build with AI, and the hardest part wasn't the code. It was learning how to ask, how to check what came back, and when not to trust it. VIBE.OS turns that into a game. It has a playful Y2K look, and every project you ship goes on a shareable résumé card.</p>
+
+  <h2>How a round works</h2>
+  <ol class="steps">
+    <li><strong>Pick a project.</strong> The first one is a link-in-bio page, broken into four phases.</li>
+    <li><strong>Describe what you want.</strong> NEXUS, the AI engineer, writes the code, and you see a live preview.</li>
+    <li><strong>Watch for traps.</strong> Some phases plant a misleading request or a likely AI mistake, and you have to catch it.</li>
+    <li><strong>Get graded.</strong> Pixel, the creative director, reacts as you go, and a separate scorer grades the finished build.</li>
+    <li><strong>Ship it.</strong> The finished build gets a grade and goes on your résumé card.</li>
+  </ol>
+
+  <h2>Decisions that mattered</h2>
+  <ul class="plain">
+    <li><strong>Three AI roles, not one.</strong> One model writes code, a smaller one plays the character, and a third scores, all running in parallel. Splitting the jobs kept each one simple and fast.</li>
+    <li><strong>Watch the cost.</strong> A three-step filter sends easy requests to a simple rule or a small model and only hard ones to the big model, designed to cut AI costs roughly in half.</li>
+    <li><strong>A real brand before more screens.</strong> I wrote a character bible, a design spec and a handoff guide first, so AI design tools and people build the same thing.</li>
+  </ul>
+
+
+  <figure class="viz" aria-labelledby="arch-cap">
+    <p class="viz-title">What happens each time you send a message</p>
+    <div class="arch">
+      <div class="arch-node arch-in">Your message</div>
+      <div class="arch-arrow" aria-hidden="true">↓ sent to three AI roles at once</div>
+      <div class="arch-row">
+        <div class="arch-node"><b>NEXUS</b><span>Writes the code</span><em>Large model</em></div>
+        <div class="arch-node"><b>Pixel</b><span>Reacts in character</span><em>Small model</em></div>
+        <div class="arch-node"><b>Scorer</b><span>Grades the build</span><em>Small model</em></div>
+      </div>
+      <div class="arch-arrow" aria-hidden="true">↓ combined into one live stream</div>
+      <div class="arch-node arch-in">Preview, chat and score update together</div>
+    </div>
+    <figcaption id="arch-cap">Before any of this, a filter routes simple edits (like a color change) to a plain rule or the small model and saves the large model for real code. Estimated cost: about 6 cents per session.</figcaption>
+  </figure>
+
+  <h2>What I'm learning</h2>
+  <p>How to design around AI that's sometimes wrong, how to keep AI costs predictable, and how to write a brief clear enough that other people, or other AIs, can build from it. Those are the same skills I use on my work tools.</p>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>React Native</span><span>Expo</span><span>Supabase</span><span>Claude API</span><span>TypeScript</span></div>
+
+  <div class="next">
+    <a href="memento.html">← Memento Mori</a>
+    <a href="parklight.html">Next: Parklight →</a>
+  </div>
+</div>
+<script>
+(function(){
+  var row=document.getElementById('slides'); if(!row) return;
+  document.querySelectorAll('.gbtn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=row.querySelector('.slide'); var step=s?s.getBoundingClientRect().width+16:300;
+      row.scrollBy({left:step*parseInt(b.getAttribute('data-dir'),10),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    });
+  });
+})();
+</script>
+</body>
+</html>

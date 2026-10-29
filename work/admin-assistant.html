@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRM Workflow Assistant · Jesse Trevino</title>
+<meta name="description" content="An AI assistant that handles routine sales admin work, with a person approving anything that reaches a client.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Case study · Prototype</p>
+  <h1>CRM workflow assistant</h1>
+  <p class="lede">An AI assistant that does the routine admin of a design sales job (quotes, follow-ups, reminders, a daily plan) while I stay in charge of everything a client sees.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Designed and built it</dd></div>
+    <div><dt>Status</dt><dd>Prototype, piloted on my own projects</dd></div>
+    <div><dt>Started as</dt><dd>A browser autofill extension</dd></div>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>A design consultant spends a large share of the day on admin: building quotes line by line, logging every contact, setting and moving follow-up reminders, and checking order and install status across several screens. Each task is small. Together they eat the time that should go to clients.</p>
+
+  <h2>What I built</h2>
+  <p>It started as a browser extension that filled repetitive form fields for me. That helped, but it was fragile. So I rebuilt the idea as a prototype AI assistant that can look up a project, build and check a quote, set a reminder and read order status. The assistant does the routine steps; I decide what goes out.</p>
+
+  <div class="stats" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr))">
+    <div class="stat"><b>19</b><span>automatic checks every quote passes before a client sees it</span></div>
+    <div class="stat"><b>0</b><span>client messages sent without a person approving them</span></div>
+  </div>
+
+  <h2>How a day runs</h2>
+  <ol class="steps">
+    <li><strong>Morning briefing.</strong> Before I start, it reviews my follow-up queue and builds a one-page checklist: what's urgent, what's due, what's shipping. It only reads and drafts. It sends nothing.</li>
+    <li><strong>Working session.</strong> I work the list with the assistant: quotes, emails, reminders, calls. Items get checked off as they're done.</li>
+    <li><strong>Midday update.</strong> It compares the queue to the morning and reports only what changed.</li>
+    <li><strong>End-of-day check.</strong> It confirms every client touch that day was logged, so nothing goes unrecorded.</li>
+  </ol>
+
+  <h2>Guardrails</h2>
+  <ul class="plain">
+    <li><strong>A person approves anything client-facing.</strong> Drafts are staged, never sent on their own.</li>
+    <li><strong>Practice run by default.</strong> Actions that change a record show what they would do first, and only run when confirmed.</li>
+    <li><strong>Quote checks.</strong> Every quote runs through 19 rules before it goes out, like size limits, expired promotions and zero-dollar lines. A failed check blocks the quote unless I override it with a written reason.</li>
+    <li><strong>Read-only mode.</strong> One setting hides every action that could change anything, for sessions that should only look.</li>
+    <li><strong>Written-down lessons.</strong> When the assistant gets something wrong, the mistake and the rule that prevents it go into its playbook with a date.</li>
+  </ul>
+
+  <p>To walk leadership through the idea, I built a demo dashboard showing how the assistant would fit into a consultant's day.</p>
+  <p><a class="cta" href="../demo/admin-assistant.html">Try a simplified demo →</a> It shows one piece: checking product rules before a quote line is built.</p>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>Claude Code</span><span>MCP connectors</span><span>Node.js</span><span>Chrome extension</span></div>
+
+  <div class="next">
+    <a href="swatch-scanner.html">← Swatch Scanner</a>
+    <a href="trade-pipeline.html">Next: Trade pipeline →</a>
+  </div>
+</div>
+</body>
+</html>

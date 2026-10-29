@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRM Assistant Demo · Jesse Trevino</title>
+<meta name="description" content="Concept demo: an assistant inside a CRM that checks product rules before a line item is built.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: demo frame (mock admin screen) with a docked assistant panel; site header above, note below. */
+:root{
+  color-scheme:light;
+  --bg:#F0E7DB; --surface:#F8F3EC; --sunk:#EBE1D3; --ink:#202023; --muted:#55504A; --faint:#6A645D;
+  --line:#D9CCBA; --line-firm:#C4B49E; --accent:#2A5DC4; --accent-soft:#DFE6F4; --accent-line:#AFC2E8;
+  --good:#2F6B45; --good-soft:#E2EDDF; --good-line:#A9C6B0; --bad:#A3453B; --warn:#8A6A2F;
+  --display:"Instrument Serif", Georgia, serif;
+  --body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.27 0 0 0 0 0.18 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+a{color:var(--accent); text-underline-offset:3px}
+.wrap{max-width:1040px; margin:0 auto; padding-left:max(24px, env(safe-area-inset-left,0px)); padding-right:max(24px, env(safe-area-inset-right,0px)); padding-block:28px 56px}
+.top{display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:48px}
+.mark{font-family:var(--mono); font-size:13px; color:var(--ink); text-decoration:none}
+.back{font-size:15px; color:var(--muted); text-decoration:none}
+.back:hover{color:var(--ink)}
+.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 14px}
+h1{font-family:var(--display); font-weight:400; font-size:clamp(36px, 6vw, 56px); line-height:1; margin:0 0 16px; text-wrap:balance}
+.lede{font-size:17px; color:var(--muted); margin:0 0 32px; max-width:62ch}
+
+.frame{border:1px solid var(--line-firm); border-radius:10px; overflow:hidden; background:var(--sunk); position:relative; min-height:600px}
+.bar{padding:13px 18px; border-bottom:1px solid var(--line); background:var(--surface); display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.bar b{font-size:14px; font-weight:600}
+.crumb{font-size:13px; color:var(--faint)}
+.body{padding:18px}
+.tbl-scroll{overflow-x:auto}
+.thead,.trow{display:grid; grid-template-columns:0.8fr 1.3fr 1.1fr 0.7fr; gap:12px; min-width:520px}
+.thead{padding:0 12px 9px; font-size:12px; color:var(--faint)}
+.tbl{border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface); min-width:520px}
+.trow{padding:12px; font-size:13px; color:var(--muted); border-bottom:1px solid var(--line)}
+.trow:last-child{border-bottom:none}
+.trow span:first-child{font-variant-numeric:tabular-nums; color:var(--ink); font-family:var(--mono); font-size:12px}
+.sub{font-size:13px; color:var(--faint); margin:0 0 15px}
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:13px 15px; max-width:560px}
+.lab{font-size:11px; color:var(--faint); margin-bottom:4px}
+.fld{border:1px solid var(--line); border-radius:4px; background:var(--surface); padding:8px 10px; font-size:13px; color:var(--faint); min-height:36px; transition:border-color .25s}
+.fld.set{color:var(--ink)}
+.fld.hit{border-color:var(--accent)}
+.price{margin-top:17px; padding:12px 14px; border:1px solid var(--good-line); background:var(--good-soft); border-radius:6px; max-width:560px; font-size:13px; color:var(--good)}
+
+.panel{position:absolute; right:18px; bottom:18px; width:320px; background:var(--surface); border:1px solid var(--line-firm); border-radius:11px; overflow:hidden; box-shadow:0 8px 28px rgba(0,0,0,.08)}
+.phead{padding:11px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px}
+.phead b{font-size:14px; font-weight:600}
+.tag{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--faint)}
+.icon-btn{flex:none; width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:6px; background:var(--sunk); color:var(--muted); cursor:pointer}
+.icon-btn:hover{color:var(--ink); border-color:var(--line-firm)}
+.log{padding:14px; min-height:110px; max-height:240px; overflow-y:auto; font-size:13px; color:var(--muted)}
+.ptoggle{display:flex; align-items:center; gap:8px; background:none; border:0; padding:0; font:inherit; color:var(--ink); cursor:pointer; min-height:32px}
+.ptoggle .chev{transition:transform .2s; transform:rotate(180deg); color:var(--muted)}
+.panel.parked .ptoggle .chev{transform:rotate(0deg)}
+.panel.parked{width:auto; border-radius:999px}
+.panel.parked .phead{border-bottom:0; padding:8px 16px}
+.panel.parked #pbody,.panel.parked .tag,.panel.parked #clrBtn{display:none}
+.panel.parked:hover{border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.ptoggle .chev{transition:none}}
+.foot{padding:10px 14px 14px; border-top:1px solid var(--line)}
+input{width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:7px; background:var(--sunk); color:var(--ink); font-size:13px; font-family:var(--body); margin-bottom:8px; min-height:40px}
+.qs{display:flex; flex-direction:column; gap:6px}
+.q{text-align:left; padding:7px 11px; border-radius:7px; border:1px solid var(--line); background:var(--sunk); color:var(--ink); font-size:13px; cursor:pointer; font-family:var(--body); min-height:40px}
+.q:hover{border-color:var(--line-firm)}
+.q.go{border-color:var(--accent-line); background:var(--accent-soft); color:var(--accent)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.ask{text-align:right; margin-bottom:12px}
+.ask span{display:inline-block; background:var(--accent-soft); border:1px solid var(--accent-line); border-radius:10px; padding:7px 11px; font-size:13px; color:var(--ink); max-width:88%}
+.row{display:flex; gap:7px; align-items:flex-start; font-size:13px; margin-bottom:10px}
+.code{font-family:var(--mono); font-size:11.5px; color:var(--muted); background:var(--sunk); border:1px solid var(--line); border-radius:6px; padding:9px 11px; line-height:1.75; margin-bottom:10px; overflow-x:auto; white-space:pre}
+.ans{font-size:13.5px; color:var(--ink); line-height:1.6}
+.note{font-size:14px; color:var(--faint); margin:24px 0 0; max-width:66ch}
+svg{flex:none}
+@media (prefers-reduced-motion:reduce){.fld{transition:none}}
+@media (max-width:820px){
+  .panel{position:static; width:auto; margin:0 18px 18px; box-shadow:none}
+  .frame{min-height:0}
+}
+@media (max-width:480px){.grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Concept demo</p>
+  <h1>An assistant inside the CRM</h1>
+  <p class="lede">Instead of guessing from documents, the assistant asks the product configurator directly whether a build is allowed, then explains the answer in plain language. When it's allowed, it fills in the line item. Open the <strong>CRM assistant</strong> tab in the corner, then try the examples or type your own question.</p>
+
+  <div class="frame">
+    <div class="bar"><b>CRM</b><span class="crumb" id="crumb">Projects · Quotes · Orders</span></div>
+    <div class="body">
+      <div id="listView">
+        <div class="tbl-scroll">
+          <div class="thead"><span>Project</span><span>Client</span><span>Status</span><span>Follow-up</span></div>
+          <div class="tbl">
+            <div class="trow"><span>204118</span><span>Helen Chen</span><span>Waiting for measure</span><span>Aug 11</span></div>
+            <div class="trow"><span>204207</span><span>Marcus Reyes</span><span>Sale made</span><span>Aug 8</span></div>
+            <div class="trow"><span>204331</span><span>Priya Anand</span><span>Rough quote</span><span>Aug 14</span></div>
+            <div class="trow"><span>204502</span><span>Tom Whitfield</span><span>Pending fabric</span><span>Aug 21</span></div>
+            <div class="trow"><span>204660</span><span>Dana Alvarez</span><span>Backordered</span><span>Dec 31</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="buildView" hidden>
+        <p class="sub">Add item · Roman shade</p>
+        <div class="grid">
+          <div><div class="lab">Product</div><div class="fld" id="f0">&nbsp;</div></div>
+          <div><div class="lab">Room</div><div class="fld" id="f1">&nbsp;</div></div>
+          <div><div class="lab">Material</div><div class="fld" id="f2">&nbsp;</div></div>
+          <div><div class="lab">Color</div><div class="fld" id="f3">&nbsp;</div></div>
+          <div><div class="lab">Mount</div><div class="fld" id="f4">&nbsp;</div></div>
+          <div><div class="lab">Lift</div><div class="fld" id="f5">&nbsp;</div></div>
+          <div><div class="lab">Width</div><div class="fld" id="f6">&nbsp;</div></div>
+          <div><div class="lab">Height</div><div class="fld" id="f7">&nbsp;</div></div>
+        </div>
+        <div class="price" id="price" hidden>Configuration valid · price calculated</div>
+      </div>
+    </div>
+
+    <div class="panel parked" id="panel">
+      <div class="phead">
+        <button class="ptoggle" id="ptoggle" type="button" aria-expanded="false" aria-controls="pbody">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--accent)"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+          <b>CRM assistant</b>
+          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 14l5-5 5 5"/></svg>
+        </button>
+        <span class="tag">sandbox</span>
+        <button class="icon-btn" id="clrBtn" type="button" aria-label="Clear conversation" title="Clear">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 6"/><path d="M20 5v6h-6"/></svg>
+        </button>
+      </div>
+      <div id="pbody">
+      <div class="log" id="log" aria-live="polite">Ask whether something can be built, or ask me to start a line item.</div>
+      <div class="foot">
+        <label for="inp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ask about a build</label>
+        <input id="inp" placeholder="Ask about a build, then press Enter">
+        <div class="qs">
+          <button class="q" type="button" data-i="0">Cordless Roman, 84 x 72?</button>
+          <button class="q" type="button" data-i="1">Three shades on one headrail, motorized?</button>
+          <button class="q" type="button" data-i="2">Widest cordless Roman?</button>
+          <button class="q go" type="button" data-i="3">Start a Roman shade, linen, natural, 36 x 76</button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">Concept mockup. Nothing here connects to a live system, and client names and project numbers are fictional, and the product rules are sample data, not any company's real specifications.</p>
+</div>
+
+<script>
+(function(){
+var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var S = RM ? 0 : 1;
+var ICON = {
+  wait:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 6v6l3.5 2"/><circle cx="12" cy="12" r="9"/></svg>',
+  ok:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>',
+  no:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+  who:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c1-3.5 3.6-5 6.5-5s5.5 1.5 6.5 5"/></svg>'
+};
+var D=[
+ {q:'Cordless Roman, 84 x 72?', t:'Cordless lift has a width limit. Checking it.',
+  c:'validate_config(\n  product: "roman",\n  lift: "cordless",\n  width: 84, height: 72\n)',
+  r:'Not allowed: over the cordless width limit', ok:false,
+  a:'No. At 84 inches wide, cordless is over the limit. Options: a corded or loop lift, motorization, or splitting the window into two shades.', build:false},
+ {q:'Three shades on one headrail, motorized?', t:'Shared headrail. Checking motor compatibility.',
+  c:'validate_config(\n  headrail: "shared",\n  shades: 3,\n  lift: "motorized"\n)',
+  r:'Not allowed: each motor needs its own headrail', ok:false,
+  a:'No. A shared headrail can’t take motors, so each motorized shade needs its own headrail and its own line item. Manual lifts on a shared headrail are fine.', build:false},
+ {q:'Widest cordless Roman?', t:'Reading the width range for cordless.',
+  c:'get_limits(\n  product: "roman",\n  lift: "cordless"\n)',
+  r:'Range: 18" to 60"', ok:true,
+  a:'60 inches in this sample rule set. Past that, switch to a corded lift, motorize, or split the opening.', build:false},
+ {q:'Start a Roman shade, linen, natural, 36 x 76', t:'Cordless is within range at 36 inches. Opening a line item.',
+  c:'add_line_item(\n  product: "roman", material: "linen",\n  color: "natural", mount: "inside",\n  lift: "cordless", width: 36, height: 76\n)',
+  r:'Accepted: line item created', ok:true,
+  a:'Done. It’s filled in on the build page and the price checked out. Review it, then add the next window.', build:true}
+];
+var F=['Roman shade','Bedroom 1','Linen','Natural','Inside','Cordless','36"','76"'];
+var log=document.getElementById('log'), inp=document.getElementById('inp'), crumb=document.getElementById('crumb');
+var lv=document.getElementById('listView'), bv=document.getElementById('buildView'), pz=document.getElementById('price');
+var T=[], GREET='Ask whether something can be built, or ask me to start a line item.';
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function clear(){T.forEach(clearTimeout); T=[];}
+function at(ms,fn){T.push(setTimeout(fn,ms*S));}
+function toList(){lv.hidden=false; bv.hidden=true; crumb.textContent='Projects · Quotes · Orders';}
+function reset(){for(var i=0;i<8;i++){var e=document.getElementById('f'+i); e.innerHTML='&nbsp;'; e.className='fld';} pz.hidden=true;}
+function fill(){
+  reset(); lv.hidden=true; bv.hidden=false; crumb.textContent='Projects · Quote 204118 · Add item';
+  F.forEach(function(v,i){
+    at(i*230,function(){var e=document.getElementById('f'+i); e.textContent=v; e.className='fld set hit';
+      at(i*230+430,function(){e.className='fld set';});});
+  });
+  at(F.length*230+320,function(){pz.hidden=false;});
+}
+function ask(txt){log.innerHTML='<div class="ask"><span>'+esc(txt)+'</span></div>';}
+function run(i){
+  clear(); var d=D[i];
+  if(!d.build){reset(); toList();}
+  ask(d.q);
+  at(400,function(){log.innerHTML+='<div class="row" style="color:var(--faint)">'+ICON.wait+'<span>'+d.t+'</span></div>';});
+  at(1200,function(){log.innerHTML+='<div class="code">'+esc(d.c)+'</div>';});
+  at(2000,function(){
+    log.innerHTML+='<div class="row" style="color:'+(d.ok?'var(--good)':'var(--bad)')+'">'+(d.ok?ICON.ok:ICON.no)+'<span>'+d.r+'</span></div>';
+    if(d.build) fill();
+  });
+  at(2600,function(){log.innerHTML+='<div class="ans">'+esc(d.a)+'</div>';});
+}
+Array.prototype.forEach.call(document.querySelectorAll('.q'),function(b){
+  b.addEventListener('click',function(){run(parseInt(b.getAttribute('data-i'),10));});
+});
+(function(){
+  var panel=document.getElementById('panel'), tg=document.getElementById('ptoggle');
+  var lg=document.getElementById('log'); new MutationObserver(function(){ lg.scrollTop=lg.scrollHeight; }).observe(lg,{childList:true,subtree:true});
+  tg.addEventListener('click',function(){
+    var parked=panel.classList.toggle('parked'); tg.setAttribute('aria-expanded',parked?'false':'true');
+    if(!parked) document.getElementById('inp').focus({preventScroll:true});
+  });
+})();
+document.getElementById('clrBtn').addEventListener('click',function(){clear(); reset(); toList(); inp.value=''; log.textContent=GREET; inp.focus();});
+inp.addEventListener('keydown',function(e){
+  if(e.key!=='Enter') return;
+  var v=inp.value; if(!v.trim()) return; inp.value='';
+  clear(); reset(); toList(); ask(v);
+  at(400,function(){log.innerHTML+='<div class="row" style="color:var(--faint)">'+ICON.wait+'<span>No rule covers this one.</span></div>';});
+  at(1200,function(){log.innerHTML+='<div class="row" style="color:var(--warn)">'+ICON.who+'<span>Escalated to a person</span></div><div class="ans">I don’t want to guess on this one, so I’ve passed it to a design consultant to answer.</div>';});
+});
+})();
+</script>
+</body>
+</html>

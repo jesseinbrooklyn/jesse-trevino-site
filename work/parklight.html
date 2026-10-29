@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parklight · Jesse Trevino</title>
+<meta name="description" content="A product concept: know when your neighborhood park is busy with other families, and just go.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Product concept · Exploring</p>
+  <h1>Parklight</h1>
+  <p class="lede">Know when your neighborhood park is busy with other families, and just go. A product concept I scoped from research to a written product spec before writing any code.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Research, product design, spec</dd></div>
+    <div><dt>Status</dt><dd>Spec written; testing the idea before building</dd></div>
+    <div><dt>Built so far</dt><dd>A product brief, no app yet</dd></div>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>Parenting young kids can be lonely. You'd take your kid to the park if you knew other families would be there, but you usually don't, so you stay home. The park might be full. You just can't tell.</p>
+
+  <h2>What the research showed</h2>
+  <p>The apps that exist all work the same way: build a profile, find a compatible family, then schedule a playdate. That's a lot of setup for "is anyone at the park right now?" The gap was a simple signal: <em>heading to the park, who's around?</em></p>
+
+  <h2>The core idea</h2>
+  <p>Broadcast, then join, instead of match, then schedule. You see that a park is lively right now, and you go. Parks work like portals: the place is the center of the app, not the people.</p>
+
+  <figure class="viz" aria-labelledby="rings-cap">
+    <p class="viz-title">Who sees what</p>
+    <ol class="rings">
+      <li class="ring r1"><b>Friends you've met in person</b><span>See who's at the park</span></li>
+      <li class="ring r2"><b>Friends of friends</b><span>See a softer signal (planned for later)</span></li>
+      <li class="ring r3"><b>Everyone else</b><span>Sees only "3 families here now," never names or faces, and nothing at all when too few people are there to stay anonymous</span></li>
+    </ol>
+    <figcaption id="rings-cap">The closer someone is to you in real life, the more they see. Strangers only ever see a count tied to the place.</figcaption>
+  </figure>
+
+  <h2>Decisions that mattered</h2>
+  <ul class="plain">
+    <li><strong>Kids' safety comes first.</strong> No anonymous browsing of nearby families, ever. A list of things the app must never do sits at the top of the spec.</li>
+    <li><strong>Connect only in person.</strong> You become friends by scanning each other's QR code at the park, so no stranger can reach you remotely.</li>
+    <li><strong>Score places, not parents.</strong> I dropped ideas like ranking active parents. Scoring only parks removed the safety and privacy problems in one move.</li>
+    <li><strong>Invite-only, one neighborhood at a time.</strong> The app only works when enough nearby families use it, so it launches dense in one area before moving to the next.</li>
+    <li><strong>Test before building.</strong> A neighborhood group chat can test whether parents actually post "heading to the park" before any app exists.</li>
+  </ul>
+
+  <h2>What it shows</h2>
+  <p>This is how I like to start any project: understand the problem, look at what exists, find the one thing that's different, and write down the rules before building. The spec is meant to be argued with, which is the point.</p>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>Market research</span><span>Product spec</span><span>Safety design</span></div>
+
+  <div class="next">
+    <a href="vibe-os.html">← VIBE.OS</a>
+    <a href="../#work">All work →</a>
+  </div>
+</div>
+</body>
+</html>

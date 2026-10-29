@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stack &amp; Smash · Jesse Trevino</title>
+<meta name="description" content="A toddler physics game: drag chunky shapes, stack them up, then hit SMASH.">
+<style>
+  :root{ --sky-top:#8ECBEE; --sky-bot:#D4EEF9; --ink:#2B2D42; --smash:#FF5A5F; --smash-dark:#C62839; color-scheme:light }
+  html,body{ margin:0; height:100%; overflow:hidden; background:var(--sky-bot); color:var(--ink);
+    font-family:"Trebuchet MS","Avenir Next",system-ui,sans-serif; -webkit-user-select:none; user-select:none;
+    touch-action:none; overscroll-behavior:none; -webkit-tap-highlight-color:transparent }
+  #world{ position:fixed; inset:0; display:block; touch-action:none }
+  #tray{ position:fixed; top:calc(10px + env(safe-area-inset-top,0px)); left:0; right:0; margin:0 auto; width:max-content;
+    display:flex; gap:8px; padding:8px; background:#ffffffcc; border-radius:20px; box-shadow:0 4px 0 #2b2d4222; z-index:2; max-width:calc(100vw - 24px); flex-wrap:wrap; justify-content:center }
+  .piece{ width:56px; height:56px; border-radius:14px; border:3px solid var(--ink); background:#fff; padding:0; cursor:grab; touch-action:none; display:grid; place-items:center }
+  @media (max-width:420px){ .piece{ width:46px; height:46px; border-radius:12px } .piece svg{ width:30px; height:30px } #tray{ gap:6px; padding:6px } }
+  .piece svg{ width:36px; height:36px; pointer-events:none }
+  .piece:focus-visible,#smash:focus-visible,#back:focus-visible{ outline:3px solid #fff; outline-offset:2px }
+  #smash{ position:fixed; right:calc(16px + env(safe-area-inset-right,0px)); bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:2;
+    width:112px; height:112px; border-radius:50%; border:4px solid var(--ink); background:radial-gradient(circle at 35% 30%, #ff8a8d, var(--smash) 55%, var(--smash-dark));
+    color:#fff; font:900 22px/1 "Trebuchet MS",system-ui,sans-serif; letter-spacing:.04em; box-shadow:0 6px 0 var(--ink); cursor:pointer; touch-action:manipulation }
+  #smash:active{ transform:translateY(4px); box-shadow:0 2px 0 var(--ink) }
+  #back{ position:fixed; left:calc(12px + env(safe-area-inset-left,0px)); bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:2;
+    font:600 12px/1 ui-monospace,Menlo,monospace; color:var(--ink); background:#ffffffcc; padding:8px 10px; border-radius:10px; text-decoration:none }
+  .shake{ animation:shake .45s }
+  @keyframes shake{ 0%,100%{transform:translate(0,0)} 20%{transform:translate(-8px,4px)} 40%{transform:translate(7px,-6px)} 60%{transform:translate(-5px,5px)} 80%{transform:translate(4px,-3px)} }
+  @media (prefers-reduced-motion:reduce){ .shake{ animation:none } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="world" aria-label="Play area. Drag shapes from the tray and stack them."></canvas>
+</div>
+<div id="tray" role="toolbar" aria-label="Shapes">
+  <button class="piece" data-type="circle" aria-label="Circle"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="#FFC93C" stroke="#2B2D42" stroke-width="3"/></svg></button>
+  <button class="piece" data-type="square" aria-label="Square"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="5" fill="#FF6B6B" stroke="#2B2D42" stroke-width="3"/></svg></button>
+  <button class="piece" data-type="triangle" aria-label="Triangle"><svg viewBox="0 0 36 36"><path d="M18 4 L33 31 H3 Z" fill="#5FB87A" stroke="#2B2D42" stroke-width="3" stroke-linejoin="round"/></svg></button>
+  <button class="piece" data-type="plank" aria-label="Long block"><svg viewBox="0 0 36 36"><rect x="2" y="12" width="32" height="12" rx="4" fill="#4D96FF" stroke="#2B2D42" stroke-width="3"/></svg></button>
+  <button class="piece" data-type="hex" aria-label="Hexagon"><svg viewBox="0 0 36 36"><path d="M18 3 L31 10.5 V25.5 L18 33 L5 25.5 V10.5 Z" fill="#9D6BFF" stroke="#2B2D42" stroke-width="3" stroke-linejoin="round"/></svg></button>
+  <button class="piece" data-type="buddy" aria-label="Buddy"><svg viewBox="0 0 36 36"><rect x="4" y="4" width="28" height="28" rx="9" fill="#FF9F43" stroke="#2B2D42" stroke-width="3"/><circle cx="13" cy="15" r="2.5" fill="#2B2D42"/><circle cx="23" cy="15" r="2.5" fill="#2B2D42"/><path d="M12 22 Q18 27 24 22" stroke="#2B2D42" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></button>
+</div>
+<button id="smash" type="button" aria-label="Smash everything">SMASH</button>
+<a id="back" href="../#work">← jesse-trevino.com</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+(function(){
+  var M = Matter, Engine=M.Engine, Bodies=M.Bodies, Body=M.Body, Composite=M.Composite, Query=M.Query;
+  var canvas=document.getElementById('world'), ctx=canvas.getContext('2d'), stage=document.getElementById('stage');
+  var W=0, H=0, DPR=Math.min(window.devicePixelRatio||1,2), GROUND=64;
+  var engine=Engine.create(); engine.gravity.y=1;
+  var bounds=[];
+  var COLORS={circle:'#FFC93C',square:'#FF6B6B',triangle:'#5FB87A',plank:'#4D96FF',hex:'#9D6BFF',buddy:'#FF9F43'};
+
+  function resize(){
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=W*DPR; canvas.height=H*DPR; canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    if(bounds.length) Composite.remove(engine.world,bounds);
+    bounds=[
+      Bodies.rectangle(W/2, H-GROUND/2, W*3, GROUND, {isStatic:true, friction:0.9, label:'ground'}),
+      Bodies.rectangle(-40, H/2, 80, H*4, {isStatic:true}),
+      Bodies.rectangle(W+40, H/2, 80, H*4, {isStatic:true})
+    ];
+    Composite.add(engine.world,bounds);
+  }
+  window.addEventListener('resize',resize); resize();
+
+  // tiny synth, starts after the first touch
+  var actx=null;
+  function audio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+  function tone(f,d,type,vol){ var a=audio(); if(!a) return; try{ var o=a.createOscillator(), g=a.createGain(), t=a.currentTime;
+    o.type=type||'sine'; o.frequency.setValueAtTime(f,t); o.frequency.exponentialRampToValueAtTime(Math.max(40,f*0.6),t+d);
+    g.gain.setValueAtTime(vol||0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+d+0.02);}catch(e){} }
+  function crash(){ var a=audio(); if(!a) return; try{ var n=a.sampleRate*0.5, b=a.createBuffer(1,n,a.sampleRate), d=b.getChannelData(0);
+    for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2); var s=a.createBufferSource(), g=a.createGain(); g.gain.value=0.35; s.buffer=b; s.connect(g); g.connect(a.destination); s.start(); }catch(e){} }
+
+  function make(type,x,y){
+    var s=Math.max(46, Math.min(70, W/9)), o={restitution:0.25, friction:0.6, density:0.002, chamfer:{radius:8}}, b;
+    if(type==='circle') b=Bodies.circle(x,y,s/2,{restitution:0.45,friction:0.4,density:0.002});
+    else if(type==='square'||type==='buddy') b=Bodies.rectangle(x,y,s,s,o);
+    else if(type==='plank') b=Bodies.rectangle(x,y,s*2.2,s*0.55,o);
+    else if(type==='triangle') b=Bodies.polygon(x,y,3,s*0.62,{restitution:0.2,friction:0.7,density:0.002,chamfer:{radius:6}});
+    else b=Bodies.polygon(x,y,6,s*0.55,{restitution:0.25,friction:0.6,density:0.002,chamfer:{radius:5}});
+    b.plugin={type:type,color:COLORS[type],alpha:1}; return b;
+  }
+
+  // grab model: press any shape (from the tray or on the field), drag, release to throw
+  var drag=null, lastPointer=0; // {body, id, lastX, lastY, vx, vy}
+  function startDrag(body,id,x,y){ Body.setStatic(body,true); drag={body:body,id:id,lastX:x,lastY:y,vx:0,vy:0}; }
+  function endDrag(){ if(!drag) return; var b=drag.body; Body.setStatic(b,false);
+    Body.setVelocity(b,{x:Math.max(-30,Math.min(30,drag.vx)), y:Math.max(-30,Math.min(30,drag.vy))}); drag=null; }
+  function clampX(x){ return Math.max(30,Math.min(W-30,x)); }
+  function clampY(y){ return Math.max(30,Math.min(H-GROUND-20,y)); }
+
+  document.querySelectorAll('.piece').forEach(function(btn){
+    btn.addEventListener('pointerdown',function(e){ e.preventDefault(); audio(); endDrag(); lastPointer=performance.now();
+      try{ btn.releasePointerCapture(e.pointerId); }catch(_){}
+      var b=make(btn.getAttribute('data-type'), clampX(e.clientX), clampY(e.clientY));
+      Composite.add(engine.world,b); startDrag(b,e.pointerId,e.clientX,e.clientY); tone(560,0.09,'sine',0.1); });
+    btn.addEventListener('click',function(){ // keyboard: drop from the top middle
+      if(drag || performance.now()-lastPointer<800) return; var b=make(btn.getAttribute('data-type'), W/2+(Math.random()-0.5)*80, 140); Composite.add(engine.world,b); tone(560,0.09,'sine',0.1); });
+  });
+  canvas.addEventListener('pointerdown',function(e){ audio(); if(drag) return;
+    var hits=Query.point(Composite.allBodies(engine.world).filter(function(b){return b.plugin&&b.plugin.type;}),{x:e.clientX,y:e.clientY});
+    if(hits.length){ e.preventDefault(); startDrag(hits[hits.length-1],e.pointerId,e.clientX,e.clientY); tone(420,0.06,'triangle',0.08); }
+  });
+  window.addEventListener('pointermove',function(e){ if(!drag||e.pointerId!==drag.id) return; e.preventDefault();
+    var y=e.clientY, x=e.clientX;
+    drag.vx=(x-drag.lastX)*0.6; drag.vy=(y-drag.lastY)*0.6; drag.lastX=x; drag.lastY=y;
+    Body.setPosition(drag.body,{x:clampX(x),y:clampY(y)}); },{passive:false});
+  window.addEventListener('pointerup',function(e){ if(drag&&e.pointerId===drag.id) endDrag(); });
+  window.addEventListener('pointercancel',function(e){ if(drag&&e.pointerId===drag.id) endDrag(); });
+
+  // thud on hard landings
+  M.Events.on(engine,'collisionStart',function(ev){ ev.pairs.forEach(function(p){
+    var v=Math.abs(p.bodyA.velocity.y-p.bodyB.velocity.y); if(v>4) tone(110+Math.random()*40,0.12,'sine',Math.min(0.18,v/60)); }); });
+
+  var smashing=false;
+  document.getElementById('smash').addEventListener('click',function(){
+    if(smashing) return; smashing=true; endDrag(); audio(); crash();
+    var bodies=Composite.allBodies(engine.world).filter(function(b){return b.plugin&&b.plugin.type;});
+    bodies.forEach(function(b){ Body.setStatic(b,false); Body.setVelocity(b,{x:(Math.random()-0.5)*40, y:-15-Math.random()*20}); Body.setAngularVelocity(b,(Math.random()-0.5)*0.6); });
+    stage.classList.remove('shake'); void stage.offsetWidth; stage.classList.add('shake');
+    setTimeout(function(){ var t0=performance.now(); (function fade(){ var k=1-(performance.now()-t0)/500;
+      bodies.forEach(function(b){ b.plugin.alpha=Math.max(0,k); });
+      if(k>0) requestAnimationFrame(fade); else { Composite.remove(engine.world,bodies); smashing=false; } })(); },900);
+  });
+
+  function drawBody(b){
+    var p=b.plugin; ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color; ctx.strokeStyle='#2B2D42'; ctx.lineWidth=3.5; ctx.lineJoin='round';
+    ctx.beginPath();
+    if(p.type==='circle'){ ctx.arc(b.position.x,b.position.y,b.circleRadius,0,Math.PI*2); }
+    else { var v=b.vertices; ctx.moveTo(v[0].x,v[0].y); for(var i=1;i<v.length;i++) ctx.lineTo(v[i].x,v[i].y); ctx.closePath(); }
+    ctx.fill(); ctx.stroke();
+    if(p.type==='buddy'||p.type==='circle'){
+      ctx.save(); ctx.translate(b.position.x,b.position.y); ctx.rotate(b.angle); ctx.fillStyle='#2B2D42';
+      var r=p.type==='circle'?b.circleRadius*0.32:9;
+      if(p.type==='buddy'){ ctx.beginPath(); ctx.arc(-r,-5,3.5,0,7); ctx.arc(r,-5,3.5,0,7); ctx.fill();
+        ctx.beginPath(); ctx.lineWidth=3; ctx.lineCap='round'; ctx.arc(0,3,8,0.15*Math.PI,0.85*Math.PI); ctx.strokeStyle='#2B2D42'; ctx.stroke(); }
+      ctx.restore();
+    }
+    ctx.globalAlpha=1;
+  }
+  function frame(){
+    Engine.update(engine,1000/60);
+    var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#8ECBEE'); g.addColorStop(1,'#D4EEF9'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ffffffdd'; [[0.18,0.32,1],[0.62,0.22,0.8],[0.85,0.42,0.9]].forEach(function(c){ var x=c[0]*W,y=c[1]*H,s=c[2]*40;
+      ctx.beginPath(); ctx.arc(x,y,s,0,7); ctx.arc(x+s*0.9,y+6,s*0.75,0,7); ctx.arc(x-s*0.9,y+8,s*0.65,0,7); ctx.fill(); });
+    ctx.fillStyle='#5FB87A'; ctx.fillRect(0,H-GROUND,W,GROUND); ctx.fillStyle='#3F9A5E'; ctx.fillRect(0,H-GROUND,W,8);
+    Composite.allBodies(engine.world).forEach(function(b){ if(b.plugin&&b.plugin.type){
+      if(b.position.y>H+300){ Composite.remove(engine.world,b); return; } drawBody(b); } });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+</script>
+</body>
+</html>

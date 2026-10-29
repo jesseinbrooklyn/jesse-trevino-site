@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trade Prospecting Pipeline · Jesse Trevino</title>
+<meta name="description" content="An AI-assisted outreach pipeline that keeps cold prospects out of the CRM until they reply.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Case study · Shipped</p>
+  <h1>Trade prospecting pipeline</h1>
+  <p class="lede">An outreach system for reaching interior designers, architects, builders and realtors, built so cold prospects stay out of the company CRM until they actually reply.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Designed, built and run it</dd></div>
+    <div><dt>Status</dt><dd>Piloted on my own outreach</dd></div>
+    <div><dt>Triggered by</dt><dd>Feedback from sales leadership</dd></div>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>My first round of trade outreach created a project in the CRM for every prospect up front, about 40 at a time. Most never replied, so the system filled up with dead projects. Sales leadership asked for a cleaner CRM, and it was a fair point: the clutter made the real pipeline harder to read for everyone.</p>
+  <p>I still needed to reach a lot of people, follow up on schedule, and never cold-email someone who was already a client.</p>
+
+  <h2>What I built</h2>
+  <p>A separate prospect list that lives outside the CRM, with an assistant that tracks every send, reply and follow-up. A prospect only becomes a CRM project once they respond, and on that day the full email history goes with them, so the record is complete from the start.</p>
+
+  <div class="stats" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr))">
+    <div class="stat"><b>363</b><span>prospects moved out of spreadsheets into one tracked list</span></div>
+    <div class="stat"><b>97</b><span>existing clients caught before they got a cold email, 9 of them hidden among "new" prospects</span></div>
+  </div>
+
+  <figure class="viz" aria-labelledby="split-cap">
+    <p class="viz-title">Who could be emailed, out of 363 prospects</p>
+    <div class="split" role="img" aria-label="266 prospects open to outreach, 97 blocked as existing clients">
+      <div class="seg seg-open" style="flex:266" title="Open to outreach: 266 (73%)"></div>
+      <div class="seg seg-blocked" style="flex:97" title="Existing clients, blocked: 97 (27%)"></div>
+    </div>
+    <div class="split-labels">
+      <span style="flex:266"><b>266</b> open to outreach</span>
+      <span style="flex:97"><b>97</b> existing clients, blocked</span>
+    </div>
+    <figcaption id="split-cap">More than a quarter of the original list were already clients. Without the check, they would have received a cold sales email.</figcaption>
+  </figure>
+
+  <figure class="viz" aria-labelledby="cad-cap">
+    <p class="viz-title">Follow-up schedule after the first email</p>
+    <ol class="cadence">
+      <li><b>Day 0</b><span>First email</span></li>
+      <li><b>Day 10</b><span>Soft follow-up</span></li>
+      <li><b>Day 31</b><span>Second follow-up</span></li>
+      <li><b>Every 90 days</b><span>Quarterly check-in</span></li>
+    </ol>
+    <figcaption id="cad-cap">Each send sets the date of the next one. A reply, bounce or unsubscribe stops the schedule for that person.</figcaption>
+  </figure>
+
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><strong>Check first.</strong> Every prospect is checked against the client list. Anyone who is a client, or hasn't been checked yet, can't be emailed.</li>
+    <li><strong>Daily scan.</strong> Each morning the assistant reads the inbox and sorts what came back: real replies, out-of-office notes, bounces and unsubscribe requests.</li>
+    <li><strong>Follow-up on a schedule.</strong> Each send sets the next touch: day 10, then day 31, then quarterly. Due follow-ups are drafted in batches for me to review.</li>
+    <li><strong>Promote on reply.</strong> When someone responds, a checklist creates the CRM project, attaches the email history, confirms it landed and sets the first reminder. Every email ends up logged in the CRM.</li>
+  </ol>
+
+  <h2>Decisions that mattered</h2>
+  <ul class="plain">
+    <li><strong>Start from the feedback.</strong> The whole design starts from one rule leadership cared about: nothing enters the CRM until it's a real lead.</li>
+    <li><strong>A skipped scan is never "no replies."</strong> If email is down, the scan says so loudly instead of reporting a quiet inbox.</li>
+    <li><strong>Statuses only move forward.</strong> A prospect who replied can't be accidentally reset to "new," and an unsubscribe is permanent.</li>
+    <li><strong>Earn each step.</strong> Automatic follow-ups were added only after the scanner ran cleanly for a week.</li>
+    <li><strong>Contact details stay private.</strong> The prospect list never goes into version control.</li>
+  </ul>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>Node.js</span><span>Claude Code</span><span>Mail automation</span><span>CRM connectors</span></div>
+
+  <div class="next">
+    <a href="admin-assistant.html">← CRM assistant</a>
+    <a href="chatbot-testing.html">Next: Chatbot testing →</a>
+  </div>
+</div>
+</body>
+</html>

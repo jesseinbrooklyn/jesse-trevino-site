@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elevation Drawings · Jesse Trevino</title>
+<meta name="description" content="An AI skill that turns window measurements into to-scale wall elevation drawings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Case study · Shipped</p>
+  <h1>Elevation drawings</h1>
+  <p class="lede">Give an AI assistant a measure worksheet and it draws the wall to scale, with the drapery or shades closed and open, every clearance called out in inches.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Designed and built it</dd></div>
+    <div><dt>Status</dt><dd>In use on my own projects</dd></div>
+    <div><dt>Works with</dt><dd>Claude, Copilot, other agents</dd></div>
+  </dl>
+
+  <figure>
+    <img src="../img/elevation-example.jpg" alt="To-scale elevation of a bedroom corner: a drapery pair and a single panel shown closed on top and open below, with stack widths, glass covered and wall dimensions labeled in inches" width="1200" height="927">
+    <figcaption>Example sheet with made-up numbers: a bedroom corner unfolded into one wall, two layers of drapery, closed (top) and open (bottom).</figcaption>
+  </figure>
+
+  <h2>The problem</h2>
+  <p>Clients buying drapery or large shades always ask the same questions: where does the fabric stack when it's open, how much of the window does it cover, and how far past the trim does the hardware run? A photo render can't answer those. It looks nice but isn't to scale, so it can quietly promise something the product won't do.</p>
+  <p>The answer usually lived in my head or on a hand sketch, which meant clients had to take my word for it.</p>
+
+  <h2>What I built</h2>
+  <p>A packaged skill for AI coding assistants that turns measurements into a one-page, to-scale elevation. It draws each wall twice, closed and open, and labels the numbers that settle the decision: stack width, how much glass each stack covers or clears, hardware height and how far the hem floats off the floor. Output is a drawing, a web page and a printable PDF.</p>
+
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Type in what was measured: wall width, ceiling, each opening's size and position, and the treatment on it.</li>
+    <li>The generator draws everything at 1 unit = 1 inch, so nothing is eyeballed.</li>
+    <li>It prints flags for anything that looks wrong, like a stack landing on glass or hardware hitting the ceiling.</li>
+    <li>The assistant reads the flags, fixes the input if needed, and hands over the PDF.</li>
+    <li>For homeowners, a second template produces a cleaner client-facing version.</li>
+  </ol>
+
+  <h2>Decisions that mattered</h2>
+  <ul class="plain">
+    <li><strong>Fix the input, not the drawing.</strong> If a number is wrong, it gets corrected at the source, so the drawing is always a faithful picture of the measurements.</li>
+    <li><strong>No company data in the tool.</strong> Built-in product sizes are typical estimates. Real product specs go in each job's own file, so the tool can be shared without exposing anyone's catalog.</li>
+    <li><strong>Plain tools.</strong> Python's standard library only, so it runs on any machine and any AI assistant can use it.</li>
+  </ul>
+
+  <h2>Result</h2>
+  <p>Clients see exactly where the drapery lands before they buy, and the question "will it block my window?" gets answered with a drawing instead of a promise.</p>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>Python</span><span>SVG</span><span>Claude Code skill</span><span>AI agents</span></div>
+
+  <div class="next">
+    <a href="../#work">← All work</a>
+    <a href="swatch-scanner.html">Next: Swatch Scanner →</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chatbot Testing · Jesse Trevino</title>
+<meta name="description" content="Finding out why an internal product chatbot gave wrong answers, and showing where it broke.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Case study · Shipped</p>
+  <h1>Chatbot testing</h1>
+  <p class="lede">An internal product chatbot was giving wrong or missing answers about product specs. I set out to find out why, not just report that it was bad.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Tested it and wrote up the findings</dd></div>
+    <div><dt>Status</dt><dd>Findings shared with stakeholders</dd></div>
+    <div><dt>Skills</dt><dd>Testing, analysis, clear write-up</dd></div>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>Staff were using an internal chatbot to answer product questions: sizes, limits, which options go together. Sometimes it was right. Sometimes it answered confidently and wrong, or said it didn't know something that was plainly in the product data. It wasn't clear why.</p>
+
+  <h2>What I did</h2>
+  <ol class="steps">
+    <li><strong>Collected real failures.</strong> I saved questions where the answer was wrong or missing, along with the correct answer from the product data.</li>
+    <li><strong>Asked the same thing many ways.</strong> For each fact I wrote a set of rewordings, from how a spec sheet says it to how a client would ask it.</li>
+    <li><strong>Found the pattern.</strong> The bot answered well when a question used the same words as its source data and fell apart when it didn't. The facts were there; it couldn't find them.</li>
+    <li><strong>Traced the cause.</strong> The product specs were stored as spreadsheet rows, which the bot's search step handles poorly. Rewording a question could drop accuracy sharply.</li>
+    <li><strong>Wrote it up and shared it.</strong> I documented where accuracy dropped off, with examples anyone could rerun, and sent the summary up to the stakeholders on our internal chat platform, with recommendations that included reformatting the documents the bot reads from.</li>
+  </ol>
+
+  <h2>Result</h2>
+  <p>A vague complaint ("the bot is bad") became a documented, testable problem with a likely cause and a recommended fix, sent to the people who own the tool. Whether they adopted it was their call; my job was to make the problem clear enough to act on.</p>
+
+  <h2>What I took from it</h2>
+  <ul class="plain">
+    <li><strong>Test how people actually ask.</strong> A bot can pass every test written in the system's own words and still fail real users.</li>
+    <li><strong>The data's shape matters as much as the model.</strong> The same facts, stored differently, would have given better answers.</li>
+  </ul>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>Test-set design</span><span>Prompting</span><span>Spreadsheet analysis</span></div>
+
+  <div class="next">
+    <a href="trade-pipeline.html">← Trade pipeline</a>
+    <a href="memento.html">Next: Memento Mori →</a>
+  </div>
+</div>
+</body>
+</html>

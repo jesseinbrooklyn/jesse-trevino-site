@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swatch Scanner · Jesse Trevino</title>
+<meta name="description" content="A mobile app that replaces a spreadsheet swatch and supply ordering process with a camera scan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="mark" href="../">jesse-trevino.com</a>
+    <a class="back" href="../#work">← Back to work</a>
+  </div>
+
+  <p class="eyebrow">Case study · Building</p>
+  <h1>Swatch Scanner</h1>
+  <p class="lede">A phone app for showroom staff: point the camera at a drawer of fabric swatches, and it identifies them and builds the reorder, with no spreadsheet.</p>
+
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Product, design and build</dd></div>
+    <div><dt>Status</dt><dd>Prototype live; ordering not yet connected</dd></div>
+    <div><dt>Built for</dt><dd>Showroom design staff</dd></div>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>Showrooms keep hundreds of fabric swatches in labeled drawers. When stock runs low, someone fills out a long spreadsheet form by hand: find the material, find the color, find the bin, type the quantity. It's slow, easy to get wrong, and nobody enjoys doing it, so it gets put off.</p>
+
+  <h2>What I built</h2>
+  <p>A mobile-first web app that reads swatch labels from a photo, matches them against the full swatch list, and turns them into a reorder. It also covers showroom supplies like catalogs and cleaning items, with quantity limits built in. It's designed around how staff already work, so there's almost nothing to learn.</p>
+
+  <div class="stats">
+    <div class="stat"><b>1,408</b><span>swatches in the built-in list, moved out of an old spreadsheet form</span></div>
+    <div class="stat"><b>6 / 6</b><span>labels matched correctly on the hardest test photo after the fix below</span></div>
+    <div class="stat"><b>0</b><span>spreadsheets to fill in</span></div>
+  </div>
+
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Pick your showroom and take a photo of a swatch drawer.</li>
+    <li>Text recognition reads every label in the shot.</li>
+    <li>A scoring step matches the text to the right material, color and bin, and asks you to choose when there's more than one good match.</li>
+    <li>Matches go into a reorder list you can review and adjust.</li>
+    <li>Submit the order.</li>
+  </ol>
+
+  <h2>A problem worth telling</h2>
+  <p>Early versions kept "finding" swatches that weren't there. Words like "Blackout" and "Light Filtering" are printed in the header of every label, and the matcher was reading them as material names. I traced it to the scoring step and added a list of header words that can't count as a match on their own. On the next test photo, all six labels matched with no phantom results.</p>
+
+  <h2>Project status</h2>
+  <figure class="viz status-report" aria-labelledby="sr-cap">
+    <div class="sr-head">
+      <div><p class="viz-title">Swatch Scanner · status report</p><p class="sr-sub">Owner: Jesse Trevino · Phase: prototype</p></div>
+      <span class="rag rag-amber">Overall: At risk</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="sr-table">
+        <thead><tr><th scope="col">Workstream</th><th scope="col">Status</th><th scope="col">Where it stands</th><th scope="col">Next step</th></tr></thead>
+        <tbody>
+          <tr><td>Label scanning</td><td><span class="rag rag-green">On track</span></td><td>All 6 labels matched on the hardest test photo after the header-word fix</td><td>Keep testing new drawers</td></tr>
+          <tr><td>Supplies ordering</td><td><span class="rag rag-green">On track</span></td><td>Catalogs, cleaning items and quantity limits built</td><td>None</td></tr>
+          <tr><td>Swatch list</td><td><span class="rag rag-amber">At risk</span></td><td>1,408 swatches loaded, but the list was last refreshed in April</td><td>Refresh to pick up new materials</td></tr>
+          <tr><td>Hard-to-read drawers</td><td><span class="rag rag-amber">At risk</span></td><td>Glare, faded labels and look-alike whites not fully tested</td><td>Run a batch of tough photos and log misses</td></tr>
+          <tr><td>Order submission</td><td><span class="rag rag-red">Blocked</span></td><td>The submit button shows success but doesn't send an order yet</td><td>Route orders through a server, then connect</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figcaption id="sr-cap">The overall rating is amber, not green, because the one red item is the step that makes the app useful. Flagging it plainly is the point: a demo that looks finished but can't place an order is a risk, not a win.</figcaption>
+  </figure>
+
+  <h2>Decisions that mattered</h2>
+  <ul class="plain">
+    <li><strong>Works offline.</strong> The swatch list ships inside the app instead of loading from a server, because showroom back rooms often have bad signal.</li>
+    <li><strong>Honest about what's unfinished.</strong> The final submit step isn't connected to the ordering system yet. Connecting it safely means routing it through a server rather than the phone, and that's the next milestone.</li>
+  </ul>
+
+  <h2>Tools</h2>
+  <div class="tools"><span>React</span><span>Vite</span><span>Google Cloud Vision</span><span>Supabase</span><span>Vercel</span></div>
+
+  <div class="next">
+    <a href="elevations.html">← Elevation drawings</a>
+    <a href="admin-assistant.html">Next: CRM assistant →</a>
+  </div>
+</div>
+</body>
+</html>
